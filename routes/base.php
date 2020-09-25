@@ -31,4 +31,9 @@ return [
     'help/{file}' => 'DocumentationController@show',
     'help'        => 'DocumentationController@show',
 
+    // daily
+    'dailyreport/{date}' => 'DailyReportController@index',
+    'dailyreport/user/{userid}' => 'DailyReportController@user',
+    'dailyreport/month/{month}' => 'DailyReportController@month',
+
 ];

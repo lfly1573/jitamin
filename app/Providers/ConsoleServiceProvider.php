@@ -16,6 +16,7 @@ use Jitamin\Console\CronjobCommand;
 use Jitamin\Console\PluginInstallCommand;
 use Jitamin\Console\PluginUninstallCommand;
 use Jitamin\Console\PluginUpgradeCommand;
+use Jitamin\Console\ProjectDailyReportCommand;
 use Jitamin\Console\ProjectDailyColumnStatsExportCommand;
 use Jitamin\Console\ProjectDailyStatsCalculationCommand;
 use Jitamin\Console\ResetPasswordCommand;
@@ -51,6 +52,7 @@ class ConsoleServiceProvider implements ServiceProviderInterface
         $application->add(new TaskOverdueNotificationCommand($container));
         $application->add(new SubtaskExportCommand($container));
         $application->add(new TaskExportCommand($container));
+        $application->add(new ProjectDailyReportCommand($container));
         $application->add(new ProjectDailyStatsCalculationCommand($container));
         $application->add(new ProjectDailyColumnStatsExportCommand($container));
         $application->add(new TransitionExportCommand($container));

@@ -1,4 +1,3 @@
-<?php echo $this->render('admin/_partials/update', ['is_outdated' => $is_outdated, 'current_version' => $current_version, 'latest_version' => $latest_version]) ?>
 <div class="page-header">
     <h2><?= t('About') ?></h2>
 </div>

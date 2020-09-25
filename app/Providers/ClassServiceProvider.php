@@ -206,8 +206,9 @@ class ClassServiceProvider implements ServiceProviderInterface
         };
 
         $container['cspRules'] = [
-            'default-src' => "'self'",
-            'style-src'   => "'self' 'unsafe-inline'",
+            'default-src' => "'self' https://www.layuicdn.com",
+            'style-src'   => "'self' 'unsafe-inline' https://www.layuicdn.com",
+            'script-src'   => "'self' 'unsafe-inline' https://www.layuicdn.com",
             'img-src'     => '* data:',
         ];
 

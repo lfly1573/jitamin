@@ -67,10 +67,10 @@ class Client extends Base
      */
     public function getAuthor()
     {
-        $author = 'Jitamin';
+        $author = 'project system';
 
         if ($this->userSession->isLogged()) {
-            $author = l('%s via Jitamin', $this->helper->user->getFullname());
+            $author = l('%s via project system', $this->helper->user->getFullname());
         }
 
         return $author;

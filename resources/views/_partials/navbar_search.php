@@ -28,6 +28,7 @@
                 <div class="dropdown">
                     <a href="#" class="dropdown-menu dropdown-menu-link-icon" title="<?= t('User filters') ?>"><i class="fa fa-user"></i> <i class="fa fa-caret-down"></i></a>
                     <ul>
+                        <li><a href="#" class="filter-helper filter-reset" data-filter="status:open"><?= t('Reset filters') ?></a></li>
                         <li><a href="#" class="filter-helper" data-unique-filter="assignee:nobody"><?= t('Not assigned') ?></a></li>
                         <?php foreach ($users_list as $user): ?>
                             <li><a href="#" class="filter-helper" data-unique-filter='assignee:"<?= $this->text->e($user) ?>"'><?= $this->text->e($user) ?></a></li>
@@ -42,6 +43,7 @@
                 <div class="dropdown">
                     <a href="#" class="dropdown-menu dropdown-menu-link-icon" title="<?= t('Category filters') ?>"><i class="fa fa-sitemap"></i> <i class="fa fa-caret-down"></i></a>
                     <ul>
+                        <li><a href="#" class="filter-helper filter-reset" data-filter="status:open"><?= t('Reset filters') ?></a></li>
                         <li><a href="#" class="filter-helper" data-unique-filter="category:none"><?= t('No category') ?></a></li>
                         <?php foreach ($categories_list as $category): ?>
                             <li><a href="#" class="filter-helper" data-unique-filter='category:"<?= $this->text->e($category) ?>"'><?= $this->text->e($category) ?></a></li>
@@ -50,5 +52,18 @@
                 </div>
             </div>
             <?php endif ?>
+
+            <div class="input-addon-item">
+                <div class="dropdown">
+                    <a href="#" class="dropdown-menu dropdown-menu-link-icon" title="<?= t('Column') ?>"><i class="fa fa-columns"></i> <i class="fa fa-caret-down"></i></a>
+                    <ul>
+                        <li><a href="#" class="filter-helper filter-reset" data-filter="status:open"><?= t('Reset filters') ?></a></li>
+                        <li><a href="#" class="filter-helper" data-unique-filter="column:<?= t('Backlog') ?>"><?= t('Backlog') ?></a></li>
+                        <li><a href="#" class="filter-helper" data-unique-filter="column:<?= t('Ready') ?>"><?= t('Ready') ?></a></li>
+                        <li><a href="#" class="filter-helper" data-unique-filter="column:<?= t('Work in progress') ?>"><?= t('Work in progress') ?></a></li>
+                        <li><a href="#" class="filter-helper" data-unique-filter="column:<?= t('Done') ?>"><?= t('Done') ?></a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
 </form>
