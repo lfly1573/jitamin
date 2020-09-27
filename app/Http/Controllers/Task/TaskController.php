@@ -259,6 +259,46 @@ class TaskController extends Controller
     {
         $task = $this->getTask();
         $this->taskModel->update(['id' => $task['id'], 'date_started' => time()]);
+        $tempcolumn = $this->db
+                    ->table('columns')
+                    ->columns('id')
+                    ->eq('project_id', $task['project_id'])
+                    ->eq('title', \t('Work in progress'))
+                    ->findOne();
+        if (!empty($tempcolumn)) {
+            $result1 = $this->taskPositionModel->movePosition(
+                $task['project_id'],
+                $task['id'],
+                $tempcolumn['id'],
+                1,
+                $task['swimlane_id']
+            );
+        }
+        $this->response->redirect($this->helper->url->to('Task/TaskController', 'show', ['project_id' => $task['project_id'], 'task_id' => $task['id']]));
+    }
+
+    /**
+     * Set automatically the complete date.
+     */
+    public function complete()
+    {
+        $task = $this->getTask();
+        $this->taskModel->update(['id' => $task['id'], 'progress'=>100, 'date_completed' => time()]);
+        $tempcolumn = $this->db
+                    ->table('columns')
+                    ->columns('id')
+                    ->eq('project_id', $task['project_id'])
+                    ->eq('title', \t('Done'))
+                    ->findOne();
+        if (!empty($tempcolumn)) {
+            $result1 = $this->taskPositionModel->movePosition(
+                $task['project_id'],
+                $task['id'],
+                $tempcolumn['id'],
+                1,
+                $task['swimlane_id']
+            );
+        }
         $this->response->redirect($this->helper->url->to('Task/TaskController', 'show', ['project_id' => $task['project_id'], 'task_id' => $task['id']]));
     }
 

@@ -103,8 +103,30 @@ class TaskPositionModel extends Model
         $r2 = $this->saveTaskPositions($project_id, $task_id, $position, $new_column_id, $swimlane_id);
         $r3 = $this->saveTaskTimestamps($task_id);
         $this->db->closeTransaction();
-
-        return $r1 && $r2 && $r3;
+        $result = ($r1 && $r2 && $r3);
+        if ($result) {
+            $tempcolumn = array_column(
+                $this->db
+                    ->table('columns')
+                    ->columns('id','title')
+                    ->eq('project_id', $project_id)
+                    ->beginOr()
+                    ->eq('title', \t('Work in progress'))
+                    ->eq('title', \t('Done'))
+                    ->closeOr()
+                    ->findAll()
+                , null, 'id');
+            if (isset($tempcolumn[$new_column_id])) {
+                if ($tempcolumn[$new_column_id]['title'] == \t('Done')) {
+                    $this->db->table('tasks')->eq('id', $task_id)->update(array('progress'=>100,'date_completed'=>time()));
+                } elseif (!isset($tempcolumn[$original_column_id])) {
+                    $this->db->table('tasks')->eq('id', $task_id)->update(array('date_started'=>time()));
+                } elseif ($tempcolumn[$original_column_id]['title'] == \t('Done')) {
+                    $this->db->table('tasks')->eq('id', $task_id)->update(array('progress'=>99,'date_completed'=>0));
+                }
+            }
+        }
+        return $result;
     }
 
     /**

@@ -165,8 +165,19 @@
         <?php endif ?>
     </div>
 
-    <?php if ($editable && empty($task['date_started'])): ?>
+    <?php if ($editable && empty($task['date_completed']) && empty($task['date_started'])): ?>
         <?= $this->url->button('fa-play', t('Set start date'), 'Task/TaskController', 'start', ['task_id' => $task['id'], 'project_id' => $task['project_id']], 'btn-success btn-header') ?>
+    <?php endif ?>
+
+    <?php if ($editable && !empty($task['date_started']) && empty($task['date_completed'])): ?>
+        <div style="text-align:right;">
+        <?php if (empty($task['date_due'])): ?>
+            <?= $this->url->link('您还未设置任务计划结束日期，请点击设置！', 'Task/TaskController', 'edit', ['task_id' => $task['id'], 'project_id' => $task['project_id']], false, 'popover large') ?>&nbsp;&nbsp;&nbsp;&nbsp;
+        <?php else: ?>
+            <?= $this->url->link('下班前记得点击这里设置进度！', 'Task/TaskController', 'edit', ['task_id' => $task['id'], 'project_id' => $task['project_id']], false, 'popover large') ?>&nbsp;&nbsp;&nbsp;&nbsp;
+        <?php endif ?>
+        <?= $this->url->button('fa-check', t('Finish this task'), 'Task/TaskController', 'complete', ['task_id' => $task['id'], 'project_id' => $task['project_id']], 'btn-success btn-header') ?>
+        </div>
     <?php endif ?>
 
     <?= $this->hook->render('template:task:details:bottom', ['task' => $task]) ?>

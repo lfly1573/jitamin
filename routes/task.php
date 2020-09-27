@@ -24,6 +24,7 @@ return [
     'task/{project_id}/{column_id}/{swimlane_id}/create' => 'Task/TaskSimpleController@create',
     'task/{project_id}/store'                            => 'Task/TaskController@store',
     'project/{project_id}/task/{task_id}/start'          => 'Task/TaskController@start',
+    'project/{project_id}/task/{task_id}/complete'          => 'Task/TaskController@complete',
     'project/{project_id}/task/{task_id}/edit'           => 'Task/TaskController@edit',
     'project/{project_id}/task/{task_id}/update'         => 'Task/TaskController@update',
     'project/{project_id}/task/{task_id}/remove'         => 'Task/TaskSuppressionController@remove',

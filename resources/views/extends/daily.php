@@ -33,17 +33,17 @@
                       <i class="layui-icon layui-icon-note"></i> 
                       <a href="/project/<?= $echoval['tasks'][$taskone['task_id']]['project_id'] ?>/task/<?= $taskone['task_id'] ?>" target="_blank" style="color:#009688;"><?= $echoval['tasks'][$taskone['task_id']]['title'] ?></a> 
                       <?php if (!isset($taskone['user_id'])): ?>
-                        <span class="layui-badge layui-bg-gray">非本人任务</span>
+                        <span class="layui-badge layui-bg-gray">未开始或非本人任务</span>
                       <?php elseif ($taskone['isend']): ?>
                         <span class="layui-badge layui-bg-green">已完成</span>
                       <?php else: ?>
                         <span class="layui-badge layui-bg-blue">进度: <?= $taskone['progress'] ?>%</span>
                       <?php endif; ?>
-                      <?php if (!empty($taskone['date_due'])): ?><span class="layui-badge layui-bg-cyan">预计完成时间: <?= date("m-d",$taskone['date_due']) ?></span><?php endif; ?>
                       <?php if (isset($taskone['isunchanged'])): ?><span class="layui-badge layui-bg-orange">进度无变化</span><?php endif; ?>
                       <?php if (isset($taskone['isfruitless'])): ?><span class="layui-badge">完成无成果</span><?php endif; ?>
                       <?php if (isset($taskone['isunplanned'])): ?><span class="layui-badge layui-bg-orange">无预计时间</span><?php endif; ?>
                       <?php if (isset($taskone['isovertime'])): ?><span class="layui-badge">超期未完成</span><?php endif; ?>
+                      <?php if (!empty($taskone['date_due'])): ?><span class="layui-badge-rim">预计完成时间: <?= date("m-d",$taskone['date_due']) ?></span><?php endif; ?>
                     </h3>
                     <?php if (!empty($taskone['subtasks'])): ?><?php foreach ($taskone['subtasks'] as $subtask): ?>
                       <i class="layui-icon layui-icon-form"></i> <span class="layui-badge layui-bg-gray">子任务</span> <?= $echoval['subtasks'][$taskone['task_id']][$subtask['id']]['title'] ?>

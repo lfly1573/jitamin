@@ -153,7 +153,28 @@ class TaskModel extends Model
 
         $this->hook->reference('model:task:modification:prepare', $values);
 
+        if (isset($values['progress']) && $values['progress']==100) {
+            $values['date_completed'] = time();
+        }
         $result = $this->db->table(self::TABLE)->eq('id', $task['id'])->update($values);
+
+        if ($result && isset($values['progress']) && $values['progress']==100) {
+            $tempcolumn = $this->db
+            ->table('columns')
+            ->columns('id')
+            ->eq('project_id', $task['project_id'])
+            ->eq('title', \t('Done'))
+            ->findOne();
+            if (!empty($tempcolumn)) {
+                $result1 = $this->taskPositionModel->movePosition(
+                    $task['project_id'],
+                    $task['id'],
+                    $tempcolumn['id'],
+                    1,
+                    $task['swimlane_id']
+                );
+            }
+        }
 
         if ($fire_events && $result) {
             $events = [];

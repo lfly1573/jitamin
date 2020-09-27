@@ -48,12 +48,12 @@ class ProjectDailyReportCommand extends BaseCommand
                         SELECT
                             id,title
                         FROM columns
-                        WHERE title='正在做' OR title='已完成'
+                        WHERE title='".\t('Work in progress')."' OR title='".\t('Done')."'
                     ")->fetchAll(PDO::FETCH_ASSOC);
 
         $columnarray = array('ing'=>array(),'end'=>array());
         foreach ($tempcolumn as $tempvalue) {
-            if ($tempvalue['title']=='正在做') {
+            if ($tempvalue['title']==\t('Work in progress')) {
                 $columnarray['ing'][] = $tempvalue['id'];
             } else {
                 $columnarray['end'][] = $tempvalue['id'];
@@ -67,7 +67,7 @@ class ProjectDailyReportCommand extends BaseCommand
                         SELECT
                             id AS task_id, column_id, owner_id AS user_id, date_due, progress
                         FROM tasks
-                        WHERE is_active=1 AND owner_id>0 AND (column_id IN (".implode(',', $columnarray['ing']).") OR (column_id IN (".implode(',', $columnarray['end']).") AND date_modification>={$curtime}))
+                        WHERE is_active=1 AND owner_id>0 AND (column_id IN (".implode(',', $columnarray['ing']).") OR (column_id IN (".implode(',', $columnarray['end']).") AND date_completed>={$curtime}))
                         ORDER BY id ASC
                     ")->fetchAll(PDO::FETCH_ASSOC);
         $file = $this->db->execute("

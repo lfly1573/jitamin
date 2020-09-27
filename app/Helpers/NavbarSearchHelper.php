@@ -66,6 +66,7 @@ class NavbarSearchHelper extends Base
             'categories_list'     => $this->categoryModel->getList($project['id'], false),
             'users_list'          => $this->projectUserRoleModel->getAssignableUsersList($project['id'], false),
             'custom_filters_list' => $this->customFilterModel->getAll($project['id'], $this->userSession->getId()),
+            'swimlanes_list'     => $this->swimlaneModel->getList($project['id']),
         ]);
     }
 

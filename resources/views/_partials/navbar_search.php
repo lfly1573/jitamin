@@ -53,6 +53,20 @@
             </div>
             <?php endif ?>
 
+            <?php if (isset($swimlanes_list) && !empty($swimlanes_list)): ?>
+            <div class="input-addon-item">
+                <div class="dropdown">
+                    <a href="#" class="dropdown-menu dropdown-menu-link-icon" title="<?= t('Swimlanes') ?>"><i class="fa fa-bars"></i> <i class="fa fa-caret-down"></i></a>
+                    <ul>
+                        <li><a href="#" class="filter-helper filter-reset" data-filter="status:open"><?= t('Reset filters') ?></a></li>
+                        <?php foreach ($swimlanes_list as $swimlane): ?>
+                            <li><a href="#" class="filter-helper" data-unique-filter='swimlane:"<?= $this->text->e($swimlane) ?>"'><?= $this->text->e($swimlane) ?></a></li>
+                        <?php endforeach ?>
+                    </ul>
+                </div>
+            </div>
+            <?php endif ?>
+
             <div class="input-addon-item">
                 <div class="dropdown">
                     <a href="#" class="dropdown-menu dropdown-menu-link-icon" title="<?= t('Column') ?>"><i class="fa fa-columns"></i> <i class="fa fa-caret-down"></i></a>
