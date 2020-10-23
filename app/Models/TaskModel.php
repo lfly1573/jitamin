@@ -105,7 +105,34 @@ class TaskModel extends Model
         }
 
         $this->prepare($values);
-        $task_id = $this->db->table(self::TABLE)->persist($values);
+
+        $tempcolumn = array_column(
+            $this->db
+                ->table('columns')
+                ->columns('id','title')
+                ->eq('project_id', $values['project_id'])
+                ->beginOr()
+                ->eq('title', \t('Work in progress'))
+                ->eq('title', \t('Done'))
+                ->closeOr()
+                ->findAll()
+            , null, 'id');
+        $iserror = 0;
+        if (isset($tempcolumn[$values['column_id']])) {
+            if ($tempcolumn[$values['column_id']]['title'] == \t('Done')) {
+                $iserror = 1;
+            } else {
+                $values['date_completed'] = 0;
+                $values['progress'] = 0;
+                $values['date_started'] = time();
+            }
+        }
+
+        if (!$iserror) {
+            $task_id = $this->db->table(self::TABLE)->persist($values);
+        } else {
+            $task_id = false;
+        }
 
         if ($task_id !== false) {
             if ($position > 0 && $values['position'] > 1) {

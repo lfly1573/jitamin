@@ -48,12 +48,12 @@ class ProjectDailyReportCommand extends BaseCommand
                         SELECT
                             id,title
                         FROM columns
-                        WHERE title='".\t('Work in progress')."' OR title='".\t('Done')."'
+                        WHERE title='正在做' OR title='已完成'
                     ")->fetchAll(PDO::FETCH_ASSOC);
 
         $columnarray = array('ing'=>array(),'end'=>array());
         foreach ($tempcolumn as $tempvalue) {
-            if ($tempvalue['title']==\t('Work in progress')) {
+            if ($tempvalue['title']=='正在做') {
                 $columnarray['ing'][] = $tempvalue['id'];
             } else {
                 $columnarray['end'][] = $tempvalue['id'];
@@ -175,7 +175,7 @@ class ProjectDailyReportCommand extends BaseCommand
             if (empty($tempvalue['date_due'])) {
                 $datacount[$tempvalue['user_id']]['unplanned']++;
                 $datalist[$tempvalue['user_id']][$tempvalue['task_id']]['isunplanned'] = 1;
-            } elseif ($tempvalue['date_due'] < $curtime) {
+            } elseif ($tempvalue['date_due']<$curtime || ($tempvalue['date_due']==$curtime && !$datalist[$tempvalue['user_id']][$tempvalue['task_id']]['isend'])) {
                 $datacount[$tempvalue['user_id']]['overtime']++;
                 $datalist[$tempvalue['user_id']][$tempvalue['task_id']]['isovertime'] = 1;
             }

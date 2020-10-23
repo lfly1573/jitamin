@@ -222,7 +222,7 @@ class TaskController extends Controller
             'project'         => $project,
             'errors'          => $errors,
             'values'          => $values + ['project_id' => $project['id']],
-            'columns_list'    => $this->columnModel->getList($project['id']),
+            'columns_list'    => $this->columnModel->getList($project['id'], false, true),
             'users_list'      => $this->projectUserRoleModel->getAssignableUsersList($project['id'], true, false, true),
             'categories_list' => $this->categoryModel->getList($project['id']),
             'swimlanes_list'  => $swimlanes_list,
@@ -247,8 +247,13 @@ class TaskController extends Controller
             $this->response->redirect($this->helper->url->to('Project/Board/BoardController', 'show', ['project_id' => $project['id']]), true);
         } else {
             $task_id = $this->taskModel->create($values);
-            $this->flash->success(t('Task created successfully.'));
-            $this->afterSave($project, $values, $task_id);
+            if (!$task_id) {
+                $this->flash->failure(t('You cannot create tasks in this column.'));
+                $this->response->redirect($this->helper->url->to('Project/Board/BoardController', 'show', ['project_id' => $project['id']]), true);
+            } else {
+                $this->flash->success(t('Task created successfully.'));
+                $this->afterSave($project, $values, $task_id);
+            }
         }
     }
 

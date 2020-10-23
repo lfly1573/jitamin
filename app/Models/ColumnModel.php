@@ -134,9 +134,13 @@ class ColumnModel extends Model
      *
      * @return array
      */
-    public function getList($project_id, $prepend = false)
+    public function getList($project_id, $prepend = false, $is_new = false)
     {
-        $listing = $this->db->hashtable(self::TABLE)->eq('project_id', $project_id)->asc('position')->getAll('id', 'title');
+        if ($is_new) {
+            $listing = $this->db->hashtable(self::TABLE)->eq('project_id', $project_id)->neq('title', \t('Work in progress'))->neq('title', \t('Done'))->asc('position')->getAll('id', 'title');
+        } else {
+            $listing = $this->db->hashtable(self::TABLE)->eq('project_id', $project_id)->asc('position')->getAll('id', 'title');
+        }
 
         return $prepend ? [-1 => t('All columns')] + $listing : $listing;
     }

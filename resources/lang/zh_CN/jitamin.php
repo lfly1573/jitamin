@@ -1263,7 +1263,7 @@ return [
     // 'The project restriction has been created successfully.' => '',
     // 'Unable to create this project restriction.' => '',
     // 'Project restriction removed successfully.' => '',
-    // 'You cannot create tasks in this column.' => '',
+    'You cannot create tasks in this column.' => '不允许在该栏目创建任务',
     'Task creation is permitted for this column' => '允许在该栏目创建任务',
     'Closing or opening a task is permitted for this column' => '允许在该栏目关闭或打开任务',
     'Task creation is blocked for this column' => '不允许在该栏目创建任务',

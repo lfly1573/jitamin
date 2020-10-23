@@ -55,14 +55,18 @@ class TaskSimpleController extends Controller
         if (!$valid) {
             $this->show($values, $errors);
         } else {
-            $this->taskModel->create([
+            $task_id = $this->taskModel->create([
                 'title'       => $values['title'],
                 'project_id'  => $project['id'],
                 'column_id'   => $values['column_id'],
                 'swimlane_id' => $values['swimlane_id'],
                 'owner_id'    => $this->userSession->getId(),
             ]);
-            $this->flash->success(t('Task created successfully.'));
+            if (!$task_id) {
+                $this->flash->failure(t('You cannot create tasks in this column.'));
+            } else {
+                $this->flash->success(t('Task created successfully.'));
+            }
             $this->response->redirect($this->helper->url->to(
                 'Project/Board/BoardController',
                 'show',

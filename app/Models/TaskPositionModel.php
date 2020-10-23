@@ -119,10 +119,14 @@ class TaskPositionModel extends Model
             if (isset($tempcolumn[$new_column_id])) {
                 if ($tempcolumn[$new_column_id]['title'] == \t('Done')) {
                     $this->db->table('tasks')->eq('id', $task_id)->update(array('progress'=>100,'date_completed'=>time()));
-                } elseif (!isset($tempcolumn[$original_column_id])) {
-                    $this->db->table('tasks')->eq('id', $task_id)->update(array('date_started'=>time()));
-                } elseif ($tempcolumn[$original_column_id]['title'] == \t('Done')) {
-                    $this->db->table('tasks')->eq('id', $task_id)->update(array('progress'=>99,'date_completed'=>0));
+                } else {
+                    $uparray = array('date_completed'=>0, 'progress'=>0);
+                    if (!isset($tempcolumn[$original_column_id])) {
+                        $uparray['date_started'] = time();
+                    } elseif ($tempcolumn[$original_column_id]['title'] == \t('Done')) {
+                        $uparray['progress'] = 99;
+                    }
+                    $this->db->table('tasks')->eq('id', $task_id)->update($uparray);
                 }
             }
         }
