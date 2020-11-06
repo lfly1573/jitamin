@@ -3,14 +3,23 @@
   <head>
     <meta charset="utf-8" />
     <link rel="stylesheet" type="text/css" href="https://www.layuicdn.com/layui/css/layui.css" />
-    <title><?= $date ?>项目日报</title>
+    <title>查看单个用户项目情况</title>
   </head>
   <body>
     <div style="padding:10px">
     <form class="layui-form" action="" style="text-align:center;">
     <div class="layui-form-item"><div class="layui-inline">
-      <div class="layui-input-inline" style="width: 140px;font-size:22px;"><input type="text" class="layui-input" name="date" id="date"></div>
-      <div class="layui-form-mid" style="font-size:22px;">项目日报</div>
+    <div class="layui-input-inline" style="width: 150px;">
+      <select name="userid" lay-verify="">
+      <?php foreach ($echoval['users'] as $user): ?>
+        <option value="<?= $user['id'] ?>"<?php if ($userid==$user['id']): ?> selected<?php endif; ?>><?= $user['name'] ?></option>
+      <?php endforeach; ?>
+      </select></div>
+      <div class="layui-form-mid">开始时间：</div>
+      <div class="layui-input-inline" style="width: 100px;"><input type="text" class="layui-input" name="begin" id="begin"></div>
+      <div class="layui-form-mid">结束时间：</div>
+      <div class="layui-input-inline" style="width: 100px;"><input type="text" class="layui-input" name="end" id="end"></div>
+      <div class="layui-input-inline" style="width: 100px;"><button class="layui-btn layui-btn-primary" lay-submit lay-filter="formDemo">查看</button></div>
     </div></div>
     </form>
     <table class="layui-table">
@@ -21,16 +30,18 @@
       </colgroup>
       <thead>
         <tr>
-          <th>姓名</th>
+          <th>时间</th>
           <th>任务情况</th>
           <th>统计</th>
         </tr> 
       </thead>
       <tbody>
-        <?php foreach ($echoval['datalist'] as $report): ?>
-          <?php if ($echoval['users'][$report['user_id']]['role']=='app-user'): ?>
+        <?php $curtime = $begintime; $deductnum = 0; ?>
+        <?php while ($curtime <= $endtime): ?>
+          <?php $report = isset($echoval['datalist'][$curtime]) ? $echoval['datalist'][$curtime] : array(); $curtimeinfo = explode('-', date('Y-n-j-N', $curtime)); $isholiday = ((in_array($curtimeinfo[3],array(6,7)) && !isset($config['specday'][$curtimeinfo[0]][$curtimeinfo[1]][$curtimeinfo[2]])) || (!in_array($curtimeinfo[3],array(6,7)) && isset($config['specday'][$curtimeinfo[0]][$curtimeinfo[1]][$curtimeinfo[2]]))); ?>
+          <?php if (!empty($report)): ?>
           <tr>
-            <td><a href="/dailyreport/user/show?userid=<?= $echoval['users'][$report['user_id']]['id'] ?>" target="_blank"><?= $echoval['users'][$report['user_id']]['name'] ?></a></td>
+            <td><?= date('Y-m-d', $curtime) ?> <?php if ($isholiday): ?><span class="layui-badge layui-bg-orange">假</span><?php endif; ?></td>
             <td>
                 <?php foreach ($report['task_info'] as $taskone): ?>
                   <div style="marin: 5px;padding-bottom:5px;line-height:180%;">
@@ -80,13 +91,31 @@
                 <?php if (!empty($report['task_count']['fruitless'])): ?>完成无成果：<?= $report['task_count']['fruitless'] ?><br /><?php endif; ?>
                 <?php if (!empty($report['task_count']['unplanned'])): ?>无预计时间：<?= $report['task_count']['unplanned'] ?><br /><?php endif; ?>
                 <?php if (!empty($report['task_count']['overtime'])): ?>超期未完成：<?= $report['task_count']['overtime'] ?><br /><?php endif; ?>
+                <?php if (!$isholiday): ?>
+                  <?php $curdeductnum = 0; if(empty($report['task_count']['all'])) {$curdeductnum+=-2;} elseif(empty($report['task_count']['end']) && !empty($report['task_count']['unchanged']) && $report['task_count']['unchanged']==$report['task_count']['ing']){ $curdeductnum+=-2; }; if(!empty($report['task_count']['fruitless'])){$curdeductnum+=-2*$report['task_count']['fruitless'];}; if(!empty($report['task_count']['unplanned'])){$curdeductnum+=-4*$report['task_count']['unplanned'];}; if(!empty($report['task_count']['overtime'])){$curdeductnum+=-4*$report['task_count']['overtime'];}; ?>
+                  <?php if ($curdeductnum<0): ?>预计扣分：<span class="layui-badge"><?= $curdeductnum ?></span><?php $deductnum += $curdeductnum; ?><?php endif; ?>
+                <?php endif; ?>
               </div>
             </td>
           </tr>
+          <?php else: ?>
+          <tr>
+            <td><?= date('Y-m-d', $curtime) ?> <?php if ($isholiday): ?><span class="layui-badge layui-bg-orange">假</span><?php endif; ?></td>
+            <td><span class="layui-badge layui-bg-gray">无任务</span></td>
+            <td>
+              总任务数：0<br />
+              <?php if (!$isholiday): ?>
+                预计扣分：<span class="layui-badge">-2</span>
+                <?php $deductnum += -2; ?>
+              <?php endif; ?>
+            </td>
+          </tr>
           <?php endif; ?>
-        <?php endforeach; ?>
+          <?php $curtime += 86400; ?>
+        <?php endwhile; ?>
       </tbody>
     </table>
+    <h2 style="text-align:center;margin:30px;">总预计扣除分数：<?= $deductnum ?></h2>
     </div>
     <script src="https://www.layuicdn.com/layui/layui.js"></script>
     <script>
@@ -95,14 +124,15 @@
             ,table = layui.table
             ,element = layui.element
             ,laydate = layui.laydate;
-
             laydate.render({
-              elem: '#date'
+              elem: '#begin'
               ,max: -1
-              ,value: '<?= $date ?>'
-              ,done: function(value, date, endDate){
-                           window.location.href='/dailyreport/'+value;
-                        }
+              ,value: '<?= date('Y-m-d', $begintime) ?>'
+            });
+            laydate.render({
+              elem: '#end'
+              ,max: -1
+              ,value: '<?= date('Y-m-d', $endtime) ?>'
             });
       });
     </script>

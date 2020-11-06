@@ -41,8 +41,14 @@ class ProjectDailyReportCommand extends BaseCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        global $config;
+        //print_r($config);exit();
         $curtime = strtotime(date("Y-m-d"),time());
+        $curtimeinfo = explode('-', date('Y-n-j-N', $curtime));
         echo $curtime.PHP_EOL;
+
+        $isholiday = (in_array($curtimeinfo[3],array(6,7)) && !isset($config['specday'][$curtimeinfo[0]][$curtimeinfo[1]][$curtimeinfo[2]])) || (!in_array($curtimeinfo[3],array(6,7)) && isset($config['specday'][$curtimeinfo[0]][$curtimeinfo[1]][$curtimeinfo[2]]));
+        //var_dump($isholiday);exit();
 
         $tempcolumn = $this->db->execute("
                         SELECT
@@ -192,15 +198,17 @@ class ProjectDailyReportCommand extends BaseCommand
                 ->insert($dataone);
         }
         
-        $url = env('APP_URL').'/dailyreport/'.date("Y-m-d");
-        $sendemail = explode(';', env('DAILY_REPORT_EMAIL'));
-        foreach ($sendemail as $tempvalue) {
-            $this->emailClient->send(
-                $tempvalue,
-                'admin',
-                date("Y-m-d").'自动日报',
-                '今日自动日报已生成，请点击 <a href="'.$url.'">'.$url.'</a> 查看。'
-            );
+        if (!$isholiday) {
+            $url = env('APP_URL').'/dailyreport/'.date("Y-m-d", $curtime);
+            $sendemail = explode(';', env('DAILY_REPORT_EMAIL'));
+            foreach ($sendemail as $tempvalue) {
+                $this->emailClient->send(
+                    $tempvalue,
+                    'admin',
+                    date("Y-m-d").'自动日报',
+                    '今日自动日报已生成，请点击 <a href="'.$url.'">'.$url.'</a> 查看。'
+                );
+            }
         }
         
         echo "=== end ===".PHP_EOL;

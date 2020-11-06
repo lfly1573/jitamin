@@ -33,7 +33,6 @@ return [
 
     // daily
     'dailyreport/{date}' => 'DailyReportController@index',
-    'dailyreport/user/{userid}' => 'DailyReportController@user',
-    'dailyreport/month/{month}' => 'DailyReportController@month',
+    'dailyreport/user/show' => 'DailyReportController@user',
 
 ];
