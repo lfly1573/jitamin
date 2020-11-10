@@ -395,15 +395,35 @@ class TaskFinderModel extends Model
      *
      * @return int
      */
-    public function countByColumnAndSwimlaneId($project_id, $column_id, $swimlane_id)
+    public function countByColumnAndSwimlaneId($project_id, $column_id, $swimlane_id, $close_type=0)
     {
-        return $this->db
-                    ->table(TaskModel::TABLE)
-                    ->eq('project_id', $project_id)
-                    ->eq('column_id', $column_id)
-                    ->eq('swimlane_id', $swimlane_id)
-                    ->eq('is_active', 1)
-                    ->count();
+        if ($close_type>0) {
+            $curtime = strtotime(date("Y-m-d"),time());
+            $curtimeinfo = explode('-', date('Y-n-j-N', $curtime));
+            if ($close_type==7) {
+                $date_completed = $curtime-($curtimeinfo[3]-1)*86400;
+            } else {
+                $date_completed = $curtime-($curtimeinfo[2]-1)*86400;
+            }
+            return $this->db
+                        ->table(TaskModel::TABLE)
+                        ->eq('project_id', $project_id)
+                        ->eq('column_id', $column_id)
+                        ->eq('swimlane_id', $swimlane_id)
+                        ->eq('is_active', 1)
+                        ->notNull('date_completed')
+                        ->gt('date_completed', 0)
+                        ->lt('date_completed', $date_completed)
+                        ->count();
+        } else {
+            return $this->db
+                        ->table(TaskModel::TABLE)
+                        ->eq('project_id', $project_id)
+                        ->eq('column_id', $column_id)
+                        ->eq('swimlane_id', $swimlane_id)
+                        ->eq('is_active', 1)
+                        ->count();
+        }
     }
 
     /**

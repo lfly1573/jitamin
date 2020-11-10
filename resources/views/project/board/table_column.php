@@ -47,6 +47,14 @@
                                     <i class="fa fa-close fa-fw"></i>
                                     <?= $this->url->link(t('Close all tasks of this column'), 'Project/Board/BoardPopoverController', 'closeColumnTasks', ['project_id' => $column['project_id'], 'column_id' => $column['id'], 'swimlane_id' => $swimlane['id']], false, 'popover') ?>
                                 </li>
+                                <li>
+                                    <i class="fa fa-close fa-fw"></i>
+                                    <?= $this->url->link(t('Close all tasks of this column 7'), 'Project/Board/BoardPopoverController', 'closeColumnTasks', ['project_id' => $column['project_id'], 'column_id' => $column['id'], 'swimlane_id' => $swimlane['id'], 'close_type'=>7], false, 'popover') ?>
+                                </li>
+                                <li>
+                                    <i class="fa fa-close fa-fw"></i>
+                                    <?= $this->url->link(t('Close all tasks of this column 30'), 'Project/Board/BoardPopoverController', 'closeColumnTasks', ['project_id' => $column['project_id'], 'column_id' => $column['id'], 'swimlane_id' => $swimlane['id'], 'close_type'=>30], false, 'popover') ?>
+                                </li>
                             <?php endif ?>
 
                             <?= $this->hook->render('template:board:column:dropdown', ['swimlane' => $swimlane, 'column' => $column]) ?>

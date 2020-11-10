@@ -86,14 +86,33 @@ class TaskStatusModel extends Model
      * @param int $swimlane_id
      * @param int $column_id
      */
-    public function closeTasksBySwimlaneAndColumn($swimlane_id, $column_id)
+    public function closeTasksBySwimlaneAndColumn($swimlane_id, $column_id, $close_type=0)
     {
-        $task_ids = $this->db
-            ->table(TaskModel::TABLE)
-            ->eq('swimlane_id', $swimlane_id)
-            ->eq('column_id', $column_id)
-            ->eq(TaskModel::TABLE.'.is_active', TaskModel::STATUS_OPEN)
-            ->findAllByColumn('id');
+        if ($close_type>0) {
+            $curtime = strtotime(date("Y-m-d"),time());
+            $curtimeinfo = explode('-', date('Y-n-j-N', $curtime));
+            if ($close_type==7) {
+                $date_completed = $curtime-($curtimeinfo[3]-1)*86400;
+            } else {
+                $date_completed = $curtime-($curtimeinfo[2]-1)*86400;
+            }
+            $task_ids = $this->db
+                ->table(TaskModel::TABLE)
+                ->eq('swimlane_id', $swimlane_id)
+                ->eq('column_id', $column_id)
+                ->eq(TaskModel::TABLE.'.is_active', TaskModel::STATUS_OPEN)
+                ->notNull('date_completed')
+                ->gt('date_completed', 0)
+                ->lt('date_completed', $date_completed)
+                ->findAllByColumn('id');
+        } else {
+            $task_ids = $this->db
+                ->table(TaskModel::TABLE)
+                ->eq('swimlane_id', $swimlane_id)
+                ->eq('column_id', $column_id)
+                ->eq(TaskModel::TABLE.'.is_active', TaskModel::STATUS_OPEN)
+                ->findAllByColumn('id');
+        }
 
         $this->closeMultipleTasks($task_ids);
     }

@@ -26,10 +26,11 @@ class BoardPopoverController extends Controller
         $project = $this->getProject();
         $column_id = $this->request->getIntegerParam('column_id');
         $swimlane_id = $this->request->getIntegerParam('swimlane_id');
+        $close_type = $this->request->getIntegerParam('close_type');
 
         if ($this->request->isPost()) {
             $this->request->checkCSRFToken();
-            $this->taskStatusModel->closeTasksBySwimlaneAndColumn($swimlane_id, $column_id);
+            $this->taskStatusModel->closeTasksBySwimlaneAndColumn($swimlane_id, $column_id, $close_type);
             $this->flash->success(t('All tasks of the column "%s" and the swimlane "%s" have been closed successfully.', $this->columnModel->getColumnTitleById($column_id), $this->swimlaneModel->getNameById($swimlane_id) ?: t($project['default_swimlane'])));
 
             return $this->response->redirect($this->helper->url->to('Project/Board/BoardController', 'show', ['project_id' => $project['id']]));
@@ -37,11 +38,12 @@ class BoardPopoverController extends Controller
 
         return $this->response->html($this->template->render('project/board/close_all_tasks_column', [
             'project'     => $project,
-            'nb_tasks'    => $this->taskFinderModel->countByColumnAndSwimlaneId($project['id'], $column_id, $swimlane_id),
+            'nb_tasks'    => $this->taskFinderModel->countByColumnAndSwimlaneId($project['id'], $column_id, $swimlane_id, $close_type),
             'column'      => $this->columnModel->getColumnTitleById($column_id),
             'swimlane'    => $this->swimlaneModel->getNameById($swimlane_id) ?: t($project['default_swimlane']),
             'column_id'   => $column_id,
             'swimlane_id' => $swimlane_id,
+            'close_type' => $close_type,
         ]));
     }
 }
