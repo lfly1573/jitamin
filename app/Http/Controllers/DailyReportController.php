@@ -8,7 +8,10 @@ class DailyReportController extends Controller
 {
     public function index()
     {
+        $userinfo = $this->getUser();
+        // print_r($userinfo);exit();
         $date = $this->request->getStringParam('date');
+        $projectid = $this->request->getIntegerParam('projectid');
         if (!preg_match('/^[0-9]{4}\-[0-9]{1,2}\-[0-9]{1,2}$/', $date)) {
             $this->response->html('Error!');
             exit();
@@ -19,6 +22,48 @@ class DailyReportController extends Controller
             exit();
         }
         $echoval = array();
+
+        $tempdata = $this->db->execute("
+                        SELECT
+                            project_id
+                            FROM project_has_users WHERE user_id={$userinfo['id']}
+                    ")->fetchAll(PDO::FETCH_ASSOC);
+        $myproject = !empty($tempdata) ? array_column($tempdata, 'project_id') : array();
+        if (empty($myproject)) {
+            $this->response->html('No data.');
+            exit();
+        }
+
+        $echoval['project'] = $echoval['project_user'] = array();
+        $tempdata = $this->db->execute("
+                        SELECT
+                            id, name
+                        FROM projects WHERE is_active=1 AND id IN (".implode(',', $myproject).") ORDER BY last_modified DESC
+                    ")->fetchAll(PDO::FETCH_ASSOC);
+        if (!empty($tempdata)) {
+            $echoval['project'] = array_column($tempdata, null, 'id');
+        }
+        if (empty($echoval['project'])) {
+            $this->response->html('No data.');
+            exit();
+        }
+
+        if ($projectid==0) {
+            $tempdata = reset($myproject);
+            $projectid = $tempdata['id'];
+        }
+
+        if ($projectid>0 && isset($echoval['project'][$projectid])) {
+            $tempdata = $this->db->execute("
+                        SELECT
+                            user_id
+                        FROM project_has_users WHERE project_id={$projectid}
+                    ")->fetchAll(PDO::FETCH_ASSOC);
+            if (!empty($tempdata)) {
+                $echoval['project_user'] = array_column($tempdata, null, 'user_id');
+            }
+        }
+
         $tempreport = $this->db->execute("
                         SELECT
                             *
@@ -27,24 +72,28 @@ class DailyReportController extends Controller
                     ")->fetchAll(PDO::FETCH_ASSOC);
         $tempuids = $temptasks = $tempfiles = $tempcomments = array();
         foreach ($tempreport as $tempvalue) {
-            $tempvalue['task_info'] = \json_decode($tempvalue['task_info'], true);
-            $tempvalue['task_count'] = \json_decode($tempvalue['task_count'], true);
-            $echoval['datalist'][] = $tempvalue;
-            $tempuids[] = $tempvalue['user_id'];
-            foreach ($tempvalue['task_info'] as $tempvalue2) {
-                $temptasks[] = $tempvalue2['task_id'];
-                if (!empty($tempvalue2['files'])) {
-                    $tempfiles += $tempvalue2['files'];
-                }
-                if (!empty($tempvalue2['comments'])) {
-                    $tempcomments += $tempvalue2['comments'];
+            if ($projectid==0 || isset($echoval['project_user'][$tempvalue['user_id']])) {
+                $tempvalue['task_info'] = \json_decode($tempvalue['task_info'], true);
+                $tempvalue['task_count'] = \json_decode($tempvalue['task_count'], true);
+                $echoval['datalist'][] = $tempvalue;
+                $tempuids[] = $tempvalue['user_id'];
+                foreach ($tempvalue['task_info'] as $tempvalue2) {
+                    $temptasks[] = $tempvalue2['task_id'];
+                    if (!empty($tempvalue2['files'])) {
+                        $tempfiles += $tempvalue2['files'];
+                    }
+                    if (!empty($tempvalue2['comments'])) {
+                        $tempcomments += $tempvalue2['comments'];
+                    }
                 }
             }
         }
+        /*
         if (empty($echoval['datalist'])) {
             $this->response->html('No data.');
             exit();
         }
+        */
         if (!empty($tempuids)) {
             $tempdata = $this->db->execute("
                         SELECT
@@ -104,7 +153,7 @@ class DailyReportController extends Controller
             }
         }
         //print_r($echoval);exit();
-        $this->response->html($this->template->render('extends/daily', ['date' => $date, 'echoval' => $echoval]));
+        $this->response->html($this->template->render('extends/daily', ['date' => $date, 'projectid'=>$projectid, 'echoval' => $echoval]));
     }
 
     public function user()
@@ -126,7 +175,15 @@ class DailyReportController extends Controller
             $endtime = intval(strtotime($endinput));
         }
         if ($begintime == 0) {
-            $begintime = intval(strtotime("{$curtimeinfo[0]}-{$curtimeinfo[1]}-1"));
+            if ($curtimeinfo[2]==1) {
+                if ($curtimeinfo[1]==1) {
+                    $begintime = intval(strtotime(($curtimeinfo[0]-1)."-12-1"));
+                } else {
+                    $begintime = intval(strtotime("{$curtimeinfo[0]}-".($curtimeinfo[1]-1)."-1"));
+                }
+            } else {
+                $begintime = intval(strtotime("{$curtimeinfo[0]}-{$curtimeinfo[1]}-1"));
+            }
         }
         if ($endtime == 0) {
             $endtime = intval(strtotime("{$curtimeinfo[0]}-{$curtimeinfo[1]}-{$curtimeinfo[2]}")-86400);
@@ -136,6 +193,16 @@ class DailyReportController extends Controller
             exit();
         }
         $echoval = array();
+
+        $echoval['project'] = array();
+        $tempdata = $this->db->execute("
+                        SELECT
+                            id, name
+                        FROM projects
+                    ")->fetchAll(PDO::FETCH_ASSOC);
+        if (!empty($tempdata)) {
+            $echoval['project'] = array_column($tempdata, null, 'id');
+        }
 
         $echoval['users'] = array();
         $tempdata = $this->db->execute("

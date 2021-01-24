@@ -7,10 +7,18 @@
   </head>
   <body>
     <div style="padding:10px">
-    <form class="layui-form" action="" style="text-align:center;">
+    <form class="layui-form" action="/dailyreport" style="text-align:center;">
     <div class="layui-form-item"><div class="layui-inline">
+    <div class="layui-input-inline" style="width: 150px;">
+      <select name="projectid" lay-verify="">
+      <option value="0">- 请选择项目 -</option>
+      <?php foreach ($echoval['project'] as $project): ?>
+        <option value="<?= $project['id'] ?>"<?php if ($projectid==$project['id']): ?> selected<?php endif; ?>><?= $project['name'] ?></option>
+      <?php endforeach; ?>
+      </select></div>
       <div class="layui-input-inline" style="width: 140px;font-size:22px;"><input type="text" class="layui-input" name="date" id="date"></div>
       <div class="layui-form-mid" style="font-size:22px;">项目日报</div>
+      <div class="layui-input-inline" style="width: 100px;"><button class="layui-btn layui-btn-primary" lay-submit lay-filter="formDemo">查看</button></div>
     </div></div>
     </form>
     <table class="layui-table">
@@ -33,13 +41,16 @@
             <td><a href="/dailyreport/user/show?userid=<?= $echoval['users'][$report['user_id']]['id'] ?>" target="_blank"><?= $echoval['users'][$report['user_id']]['name'] ?></a></td>
             <td>
                 <?php foreach ($report['task_info'] as $taskone): ?>
+                  <?php if ($projectid==0 || $projectid==$echoval['tasks'][$taskone['task_id']]['project_id']): ?>
                   <div style="marin: 5px;padding-bottom:5px;line-height:180%;">
                     <h3 style="padding-bottom:3px;color:#009688;">
                       <i class="layui-icon layui-icon-note"></i> 
                       <?php if (!isset($echoval['tasks'][$taskone['task_id']])): ?>
                         #<?= $taskone['task_id'] ?> 已删除任务 
                       <?php else: ?>
-                        <a href="/project/<?= $echoval['tasks'][$taskone['task_id']]['project_id'] ?>/task/<?= $taskone['task_id'] ?>" target="_blank" style="color:#009688;"><?= $echoval['tasks'][$taskone['task_id']]['title'] ?></a> 
+                        <a href="/project/<?= $echoval['tasks'][$taskone['task_id']]['project_id'] ?>/task/<?= $taskone['task_id'] ?>" target="_blank" style="color:#009688;">
+                        <?php if ($projectid==0): ?>【<?= $echoval['project'][$echoval['tasks'][$taskone['task_id']]['project_id']]['name'] ?>】<?php endif; ?><?= $echoval['tasks'][$taskone['task_id']]['title'] ?>
+                        </a> 
                       <?php endif; ?>
                       <?php if (!isset($taskone['user_id'])): ?>
                         <span class="layui-badge layui-bg-gray">未开始或非本人任务</span>
@@ -68,6 +79,7 @@
                       <i class="layui-icon layui-icon-file-b"></i> <span class="layui-badge layui-bg-gray">文件</span> <a style="text-decoration:underline;" href="/?controller=AttachmentController&action=<?php if($echoval['files'][$fileone]['is_image']){ echo 'show'; } else { echo 'download'; } ?>&task_id=<?= $taskone['task_id'] ?>&project_id=<?= $echoval['tasks'][$taskone['task_id']]['project_id'] ?>&file_id=<?= $echoval['files'][$fileone]['id'] ?>" target="_blank"><?= $echoval['files'][$fileone]['name'] ?></a><br />
                     <?php endforeach; ?><?php endif; ?>
                   </div>
+                  <?php endif; ?>
                 <?php endforeach; ?>
             </td>
             <td>
@@ -100,9 +112,6 @@
               elem: '#date'
               ,max: -1
               ,value: '<?= $date ?>'
-              ,done: function(value, date, endDate){
-                           window.location.href='/dailyreport/'+value;
-                        }
             });
       });
     </script>

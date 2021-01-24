@@ -50,7 +50,8 @@
                       <?php if (!isset($echoval['tasks'][$taskone['task_id']])): ?>
                         #<?= $taskone['task_id'] ?> 已删除任务 
                       <?php else: ?>
-                        <a href="/project/<?= $echoval['tasks'][$taskone['task_id']]['project_id'] ?>/task/<?= $taskone['task_id'] ?>" target="_blank" style="color:#009688;"><?= $echoval['tasks'][$taskone['task_id']]['title'] ?></a> 
+                        <a href="/project/<?= $echoval['tasks'][$taskone['task_id']]['project_id'] ?>/task/<?= $taskone['task_id'] ?>" target="_blank" style="color:#009688;">
+                        【<?= $echoval['project'][$echoval['tasks'][$taskone['task_id']]['project_id']]['name'] ?>】<?= $echoval['tasks'][$taskone['task_id']]['title'] ?></a> 
                       <?php endif; ?>
                       <?php if (!isset($taskone['user_id'])): ?>
                         <span class="layui-badge layui-bg-gray">未开始或非本人任务</span>
